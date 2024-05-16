@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0.0","wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "packaging_demo"
+authors = [
+    {name = "ouss", email = "ouss@brown.edu"},
+]
+description = "a simple package for packaging"
+readme = "README.md"
+requires-python = ">=3.8"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "numpy",
+    'importlib-metadata; python_version<"3.10"',
+]
+# dynamic = ["version"]
+version = "0.0.1"
+
+[tool.ruff.lint]
+# 1. Enable flake8-bugbear (`B`) rules, in addition to the defaults.
+select = ["E4", "E7", "E9", "F", "B"]
+extend-select = ["I001"]
+
+# 2. Avoid enforcing line-length violations (`E501`)
+ignore = ["E501","F401"]
+
+# 3. Avoid trying to fix flake8-bugbear (`B`) violations.
+unfixable = ["B"]
+# 4. Ignore `E402` (import violations) in all `__init__.py` files, and in select subdirectories.
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"**/{tests,docs,tools}/*" = ["E402"]
+
+
+[tool.ruff.lint.isort]
+force-wrap-aliases = true
+force-single-line = false
+
+
+[tool.black]
+line-length = 119
+exclude = ".venv"
+
+[tool.flake8]
+docstring-convention = "all"
+ignore = [ "D107", "D212", "E501", "W503", "W605", "D203", "D100" ]
+exclude = ["venv"]
+max-line-length = 99
+
+# radon
+radon-max-cc = 10
+
+[tool.isort]
+profile = "black"
+multi_line_output = "VERTICAL_HANGING_INDENT"
+force_grid_wrap = 2
+line_length = 99
+
+
+[tool.pylint."messages control"]
+disable = [
+  "line-too-long",
+  "trailing-whitespace",
+  "missing-function-docstring",
+  "consider-using-f-string",
+  "import-error",
+  "too-few-public-methods",
+  "redefined-outer-name"
+]
