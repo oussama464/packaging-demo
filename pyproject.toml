@@ -23,7 +23,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 test = ["pytest","pytest-cov"]
 release = ["build","twine"]
-static-code-qa = ["pre-commit=3.7.1"]
+static-code-qa = ["pre-commit==3.7.1"]
 dev = ["packaging-demo-bobo[test,release,static-code-qa]"]
 
 [tool.setuptools]
