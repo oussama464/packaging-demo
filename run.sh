@@ -45,6 +45,10 @@ function install {
 function lint {
     pre-commit run --all-files
 }
+function lint:ci {
+    local SKIP_IN_CI="no-commit-to-branch"
+    SKIP=${SKIP_IN_CI} pre-commit run --all-files
+}
 function build {
     python -m build --sdist --wheel "${THISDIR}"
 }

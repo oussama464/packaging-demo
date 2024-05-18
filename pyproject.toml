@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0.0","wheel"]
+requires = ["setuptools>=61.0.0","wheel","setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -17,8 +17,8 @@ classifiers = [
 dependencies = [
     "numpy"
 ]
-# dynamic = ["version"]
-version = "0.0.3"
+dynamic = ["version"]
+# version = "0.0.3"
 
 [project.optional-dependencies]
 test = ["pytest","pytest-cov"]
@@ -31,6 +31,9 @@ include-package-data = true
 
 [tool.setuptools.package-data]
 "*" = ["*.json"]
+
+[tool.setuptools_scm]
+version_file = "version.txt"
 
 [tool.ruff.lint]
 # 1. Enable flake8-bugbear (`B`) rules, in addition to the defaults.
