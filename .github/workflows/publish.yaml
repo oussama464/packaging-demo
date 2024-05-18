@@ -33,10 +33,6 @@ jobs:
             env:
               STRATEGY_CONTEXT: ${{ toJson(strategy) }}
             run: echo "$STRATEGY_CONTEXT"
-          - name: Dump matrix context
-            env:
-              MATRIX_CONTEXT: ${{ toJson(matrix) }}
-            run: echo "$MATRIX_CONTEXT"
     build-test-and-publish:
         runs-on: ubuntu-latest
         steps:
