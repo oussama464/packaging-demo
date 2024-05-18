@@ -40,11 +40,14 @@ function clean-build {
 
 function install {
     python -m pip install --upgrade pip
-    python -m pip install build
-    #python -m pip install --editable "${THISDIR}/[dev]"
+    python -m pip install --editable "${THISDIR}/[dev]"
 }
 function lint {
     pre-commit run --all-files
+}
+function lint:ci {
+    local SKIP_IN_CI="no-commit-to-branch"
+    SKIP=${SKIP_IN_CI} pre-commit run --all-files
 }
 function build {
     python -m build --sdist --wheel "${THISDIR}"
@@ -58,7 +61,7 @@ function default {
     start
 }
 function publish:test {
-    load-dotenv
+    #load-dotenv : use locally
     twine upload dist/* \
     --repository testpypi \
     --username=__token__ \
@@ -71,7 +74,7 @@ function release:test {
     publish:test
 }
 function publish:prod {
-    load-dotenv
+    #load-dotenv : use locally
     twine upload dist/* \
     --repository pypi \
     --username=__token__ \
