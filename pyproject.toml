@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0.0","wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "packaging_demo"
+name = "packaging-demo-bobo"
 authors = [
     {name = "ouss", email = "ouss@brown.edu"},
 ]
@@ -15,11 +15,23 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "numpy",
-    'importlib-metadata; python_version<"3.10"',
+    "fastapi",
+    "numpy"
 ]
 # dynamic = ["version"]
-version = "0.0.1"
+version = "0.0.2"
+
+[project.optional-dependencies]
+test = ["pytest","pytest-cov"]
+release = ["build","twine"]
+static-code-qa = ["pre-commit"]
+dev = ["packaging_demo[test,release,static-code-qa]"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.json"]
 
 [tool.ruff.lint]
 # 1. Enable flake8-bugbear (`B`) rules, in addition to the defaults.
