@@ -18,13 +18,13 @@ dependencies = [
     "numpy"
 ]
 # dynamic = ["version"]
-version = "0.0.2"
+version = "0.0.3"
 
 [project.optional-dependencies]
 test = ["pytest","pytest-cov"]
 release = ["build","twine"]
 static-code-qa = ["pre-commit"]
-dev = ["packaging_demo[test,release,static-code-qa]"]
+dev = ["packaging-demo-bobo[test,release,static-code-qa]"]
 
 [tool.setuptools]
 include-package-data = true

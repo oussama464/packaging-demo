@@ -40,8 +40,7 @@ function clean-build {
 
 function install {
     python -m pip install --upgrade pip
-    python -m pip install build
-    #python -m pip install --editable "${THISDIR}/[dev]"
+    python -m pip install --editable "${THISDIR}/[dev]"
 }
 function lint {
     pre-commit run --all-files
