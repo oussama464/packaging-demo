@@ -57,14 +57,14 @@ jobs:
             /bin/bash -x run.sh build
 
         - name: Publish to TestPypi
-          if: github.event_name == 'push' && github.ref == 'refs/heads/merge'
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
           run: |
             /bin/bash -x publish:test
           env:
             TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
 
         - name: Publish to ProdPypi
-          if: github.event_name == 'push' && github.ref == 'refs/heads/merge'
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
           run: |
             /bin/bash -x publish:prod
           env:
