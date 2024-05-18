@@ -57,7 +57,7 @@ function default {
     start
 }
 function publish:test {
-    load-dotenv
+    #load-dotenv : use locally
     twine upload dist/* \
     --repository testpypi \
     --username=__token__ \
@@ -70,7 +70,7 @@ function release:test {
     publish:test
 }
 function publish:prod {
-    load-dotenv
+    #load-dotenv : use locally
     twine upload dist/* \
     --repository pypi \
     --username=__token__ \
