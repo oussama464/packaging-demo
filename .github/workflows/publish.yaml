@@ -19,7 +19,7 @@ jobs:
 
         - name: Tag release version
           run: |
-            git tag $(cat version.txt)
+            git tag $(cat version.txt | cut -d'+' -f1)
 
 
     lint-format-and-static-code-checks:
