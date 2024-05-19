@@ -10,58 +10,54 @@ on:
 
 
 jobs:
-    dump-context-to-log:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Dump GitHub context
-            env:
-              GITHUB_CONTEXT: ${{ toJson(github) }}
-            run: echo "$GITHUB_CONTEXT"
-          - name: Dump job context
-            env:
-              JOB_CONTEXT: ${{ toJson(job) }}
-            run: echo "$JOB_CONTEXT"
-          - name: Dump steps context
-            env:
-              STEPS_CONTEXT: ${{ toJson(steps) }}
-            run: echo "$STEPS_CONTEXT"
-          - name: Dump runner context
-            env:
-              RUNNER_CONTEXT: ${{ toJson(runner) }}
-            run: echo "$RUNNER_CONTEXT"
-          - name: Dump strategy context
-            env:
-              STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-            run: echo "$STRATEGY_CONTEXT"
-    build-test-and-publish:
-        runs-on: ubuntu-latest
-        steps:
+    check-version-txt:
+      runs-on: ubuntu-latest
+      steps:
         - uses: actions/checkout@v4
           with:
             fetch-tags: true
+
+        - name: Tag release version
+          run: |
+            git tag $(cat version.txt)
+
+
+    lint-format-and-static-code-checks:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Tag release version
+          run: |
+            pip install pre-commit
+        - name: lint ,format , and otheter static code checks
+          run:
+              /bin/bash +x run.sh lint:ci
+
+    build-test-and-publish:
+        needs:
+          -  lint-format-and-static-code-checks
+          -  check-version-txt
+
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
         - name: Set up Python 3.8
           uses: actions/setup-python@v3
           with:
             python-version: 3.8
 
 
-        - name: cache deps
-          uses: actions/cache@v3
-          with:
-              path: ~/.cache/pip
-              key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt','**/pyproject.toml') }}
-              restore-keys: |
-                ${{ runner.os }}-pip-
+        # - name: cache deps
+        #   uses: actions/cache@v3
+        #   with:
+        #       path: ~/.cache/pip
+        #       key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt','**/pyproject.toml') }}
+        #       restore-keys: |
+        #         ${{ runner.os }}-pip-
 
-        - name: Tag release version
-          run: |
-            git tag $(cat version.txt)
         - name: install
           run: |
             /bin/bash -x run.sh install
-        - name: lint , format and other static checks
-          run: |
-            /bin/bash +x run.sh lint:ci
         - name: build
           run: |
             /bin/bash -x run.sh build
