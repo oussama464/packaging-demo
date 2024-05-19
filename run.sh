@@ -29,8 +29,8 @@ function load-dotenv {
     done < "$dotenv_file"
 }
 
-function clean-build {
-    local dirs=("build" "dist" "*.egg-info")
+function clean {
+    local dirs=("build" "dist" "*.egg-info" "*htmlcov" ".coverage")
     for dir in "${dirs[@]}"; do
         echo "Cleaning $dir..."
         rm -rf $dir
@@ -48,6 +48,78 @@ function lint {
 function lint:ci {
     local SKIP_IN_CI="no-commit-to-branch"
     SKIP=${SKIP_IN_CI} pre-commit run --all-files
+}
+
+function test:quick {
+    PYTEST_EXIT_STATUS=0
+    python -m pytest -vv -m 'not slow' "${THISDIR}/tests"   \
+            --cov="${THISDIR}/packaging_demo" \
+            --cov-report=html \
+            --cov-report=term \
+            --cov-fail-under=40 || ((PYTEST_EXIT_STATUS+=$?))
+            mv htmlcov "${THISDIR}/test-reports/"
+    return $PYTEST_EXIT_STATUS
+}
+function test {
+    PYTEST_EXIT_STATUS=0
+    if [ $# -eq 0 ]; then
+        python -m pytest -vv "${THISDIR}/tests/"    \
+         --cov="${THISDIR}/packaging_demo" \
+         --cov-report=html \
+         --cov-report=term \
+         --cov-fail-under=40 || ((PYTEST_EXIT_STATUS+=$?))
+        mv htmlcov "${THISDIR}/test-reports/"
+    else
+        python -m pytest -vv "$@"
+    fi
+    return $PYTEST_EXIT_STATUS
+}
+function test:wheel-locally {
+    desactivate || true
+    rm -rf test-env || true
+    python -m venv test-env
+    source test-env/bin/activate
+    clean
+    pip install build
+    build
+
+    PYTEST_EXIT_STATUS=0
+    pip install ./dist/*.whl pytest pytest-cov
+    INSTALLED_PKG_DIR="$(python -c 'import packaging_demo; print(packaging_demo.__path__[0])')"
+    echo "Installed package dir: $INSTALLED_PKG_DIR"
+    if [ $# -eq 0 ]; then
+        python -m pytest -vv "${THISDIR}/tests/"    \
+         --cov="${INSTALLED_PKG_DIR}" \
+         --cov-report=html \
+         --cov-report=term \
+         --cov-fail-under=40 || ((PYTEST_EXIT_STATUS+=$?))
+        mv htmlcov "${THISDIR}/test-reports/"
+    else
+        python -m pytest -vv "$@"
+    fi
+    desactivate
+    return $PYTEST_EXIT_STATUS
+}
+
+function test:ci {
+
+    PYTEST_EXIT_STATUS=0
+    INSTALLED_PKG_DIR="$(python -c 'import packaging_demo; print(packaging_demo.__path__[0])')"
+    echo "Installed package dir: $INSTALLED_PKG_DIR"
+    if [ $# -eq 0 ]; then
+        python -m pytest -vv "${THISDIR}/tests/"    \
+         --cov="${INSTALLED_PKG_DIR}" \
+         --cov-report=html \
+         --cov-report=term \
+         --cov-fail-under=40 || ((PYTEST_EXIT_STATUS+=$?))
+        mv htmlcov "${THISDIR}/test-reports/"
+    else
+        python -m pytest -vv "$@"
+    fi
+    return $PYTEST_EXIT_STATUS
+}
+function serve-coverage-report {
+    python -m http.server --directory "${THISDIR}/htmlcov" 9090
 }
 function build {
     python -m build --sdist --wheel "${THISDIR}"

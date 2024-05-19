@@ -18,6 +18,6 @@ def is_city_capitol_of_state(city_name: str, state: str) -> bool:
     return matched_city["state"] == state
 
 
-if __name__ == "__main__":
-    is_capitol = is_city_capitol_of_state(city_name="Provo", state="Alabama")
-    print(is_capitol)
+# if __name__ == "__main__":
+#     is_capitol = is_city_capitol_of_state(city_name="Provo", state="Alabama")
+#     print(is_capitol)
