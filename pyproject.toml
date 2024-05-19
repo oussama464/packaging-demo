@@ -34,6 +34,9 @@ include-package-data = true
 
 [tool.setuptools_scm]
 version_file = "version.txt"
+#version_scheme = "post-release"
+local_scheme = "no-local-version"
+#local_scheme = "node-and-date"
 
 [tool.ruff.lint]
 # 1. Enable flake8-bugbear (`B`) rules, in addition to the defaults.

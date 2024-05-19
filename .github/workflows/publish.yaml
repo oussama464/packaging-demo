@@ -19,7 +19,7 @@ jobs:
 
         - name: Tag release version
           run: |
-            git tag $(cat version.txt | cut -d'+' -f1)
+            git tag $(cat version.txt)
 
 
     lint-format-and-static-code-checks:
@@ -33,7 +33,7 @@ jobs:
           run:
               /bin/bash +x run.sh lint:ci
 
-    build-test-and-publish:
+    build-wheel-and-sdist:
         needs:
           -  lint-format-and-static-code-checks
           -  check-version-txt
@@ -55,28 +55,56 @@ jobs:
         #       restore-keys: |
         #         ${{ runner.os }}-pip-
 
-        - name: install
+        - name: install nuild cli
           run: |
-            /bin/bash -x run.sh install
+            pip install build
         - name: build
           run: |
             /bin/bash -x run.sh build
 
-        - name: Publish to TestPypi
-          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-          run: |
-            /bin/bash -x run.sh publish:test
-          env:
-            TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
+        - name: upload wheel an sdist
+          uses: actions/upload-artifact@v4
+          with:
+            name: wheel-and-sdist
+            path: ./dist/*
 
-        - name: Publish to ProdPypi
-          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-          run: |
-            /bin/bash -x run.sh publish:prod
-          env:
-            TEST_PYPI_TOKEN: ${{ secrets.PROD_PYPI_TOKEN }}
 
-        - name: Push tags
-          if: github.event_name == 'push' && github.ref == 'refs/heads/merge'
-          run: |
-            git push origin --tags
+    publish:
+      needs:
+        - build-wheel-and-sdist
+        - lint-format-and-static-code-checks
+        - check-version-txt
+
+      runs-on: ubuntu-latest
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      steps:
+          - uses: actions/checkout@v4
+          - name: Set up Python 3.8
+            uses: actions/setup-python@v3
+            with:
+              python-version: 3.8
+
+          - name: download wheel and sdist
+            uses: actions/download-artifact@v4
+            with:
+              name: wheel-and-sdist
+              path: ./dist/
+          - name: install twine
+            run: |
+              pip install twine
+
+          - name: Publish to TestPypi
+            run: |
+              /bin/bash -x run.sh publish:test
+            env:
+              TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
+
+          - name: Publish to ProdPypi
+            run: |
+              /bin/bash -x run.sh publish:prod
+            env:
+              TEST_PYPI_TOKEN: ${{ secrets.PROD_PYPI_TOKEN }}
+
+          - name: Push tags
+            run: |
+              git push origin --tags
