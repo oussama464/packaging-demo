@@ -43,6 +43,16 @@ jobs:
           uses: actions/setup-python@v3
           with:
             python-version: 3.8
+
+
+        - name: cache deps
+          uses: actions/cache@v3
+          with:
+              path: ~/.cache/pip
+              key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt','**/pyproject.toml') }}
+              restore-keys: |
+                ${{ runner.os }}-pip-
+
         - name: Tag release version
           run: |
             git tag $(cat version.txt)
@@ -59,14 +69,14 @@ jobs:
         - name: Publish to TestPypi
           if: github.event_name == 'push' && github.ref == 'refs/heads/main'
           run: |
-            /bin/bash -x publish:test
+            /bin/bash -x run.sh publish:test
           env:
             TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
 
         - name: Publish to ProdPypi
           if: github.event_name == 'push' && github.ref == 'refs/heads/main'
           run: |
-            /bin/bash -x publish:prod
+            /bin/bash -x run.sh publish:prod
           env:
             TEST_PYPI_TOKEN: ${{ secrets.PROD_PYPI_TOKEN }}
 
